@@ -1,10 +1,13 @@
-use clap::Parser;
+mod clone;
+
+use clap::{Parser, IntoApp};
 use fs_extra::dir::{copy, remove, CopyOptions};
 use git2::{BranchType, Error, Repository};
 use std::{
     env,
     path::{Path, PathBuf},
 };
+use clone::clone_repo;
 
 const ABOUT: &str = "Clone repository creating a folder per remote branch";
 
@@ -25,10 +28,13 @@ pub fn clone(config: &mut CloneConfig) {
         .join(&config.folder)
         .join(extra_repo_name(&config.repo));
     let repo_url = &config.repo;
-
-    let repo = match Repository::clone(repo_url, &dest_folder.join("temp")) {
+    let mut cmd = CloneConfig::command();
+    
+    let repo = match clone_repo(repo_url, &dest_folder.join("temp")) {
         Ok(repo) => repo,
-        Err(e) => panic!("failed to clone: {}", e),
+        Err(_) => {
+            cmd.error(clap::ErrorKind::ArgumentNotFound, "Could not clone repository").exit()
+        },
     };
 
     let branches = get_remote_branches(&repo);
