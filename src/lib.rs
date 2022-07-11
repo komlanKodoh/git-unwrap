@@ -30,7 +30,7 @@ pub fn clone(config: &mut CloneConfig) {
     let repo_url = &config.repo;
     let mut cmd = CloneConfig::command();
     
-    let repo = match clone_repo(repo_url, &dest_folder.join("temp")) {
+    let repo = match clone_repo(repo_url, &dest_folder.join(".__temp__")) {
         Ok(repo) => repo,
         Err(_) => {
             cmd.error(clap::ErrorKind::ArgumentNotFound, "Could not clone repository").exit()
@@ -51,11 +51,11 @@ pub fn clone(config: &mut CloneConfig) {
             }
         };
 
-        copy_folder(&dest_folder.join("temp"), &dest_folder.join(&name[7..]))
+        copy_folder(&dest_folder.join(".__temp__"), &dest_folder.join(&name[7..]))
             .expect("Could not copy file content");
     }
 
-    remove(&dest_folder.join("temp")).unwrap();
+    remove(&dest_folder.join(".__temp__")).unwrap();
 }
 
 fn copy_folder(src: &PathBuf, dest: &PathBuf) -> Result<u64, fs_extra::error::Error> {

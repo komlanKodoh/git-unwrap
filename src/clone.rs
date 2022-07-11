@@ -24,7 +24,13 @@ impl State {
 }
 
 fn print(state: &mut State) {
-    let stats = state.progress.as_ref().unwrap();
+    let stats = state.progress.as_ref();
+
+    let stats = match stats {
+        Some(value) => value,
+        None => return ,
+    };
+
     let network_pct = (100 * stats.received_objects()) / stats.total_objects();
     let index_pct = (100 * stats.indexed_objects()) / stats.total_objects();
     let co_pct = if state.total > 0 {
